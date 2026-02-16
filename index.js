@@ -10,7 +10,11 @@ const PORT = process.env.PORT || 5001;
 // Middleware
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      /\.vercel\.app$/,
+    ],
     credentials: true,
   })
 );
@@ -392,12 +396,18 @@ async function run() {
       res.send("Care.xyz server is running");
     });
 
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+    // Only listen when running locally (not on Vercel)
+    if (process.env.VERCEL !== "1") {
+      app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+      });
+    }
   } catch (error) {
     console.error("Failed to connect to MongoDB:", error);
   }
 }
 
 run().catch(console.dir);
+
+// Export for Vercel serverless
+module.exports = app;
